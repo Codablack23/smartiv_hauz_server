@@ -3,7 +3,7 @@ import {
   CustomOrigin,
 } from '@nestjs/common/interfaces/external/cors-options.interface';
 
-const CORS_WHITELIST = ['https://smartivhauz.com'];
+const CORS_WHITELIST = ['https://www.smartivhauz.com'];
 
 const validateCors: CustomOrigin = (origin, callback) => {
   // Allow requests with no origin (e.g., Postman, server-to-server)
