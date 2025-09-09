@@ -1,9 +1,6 @@
 /* eslint-disable prettier/prettier */
 export enum UserType{
-    USER="USER",
-    DESIGNER="DESIGNER",
-    BILLERS="BILLERS",
-    ADMIN="ADMIN",
+    SUPER_ADMIN="SUPER_ADMIN",
 }
 
 export enum DesignerRole{

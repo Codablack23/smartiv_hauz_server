@@ -15,8 +15,18 @@ export class PromotionsService {
     ) { }
 
 
+    async getPromotions(promotion_type?: PromotionType) {
+        const promotions = await this.promtionRepository.find({ where: { promotion_type } })
 
-    async getPromotions(promotion_type: PromotionType) {
+        return AppResponse.getResponse("success", {
+            data: {
+                promotions
+            },
+            message: "Promotion retrieved successfully"
+        })
+    }
+
+    async getPromotion(promotion_type: PromotionType) {
         const promotion = await this.promtionRepository.findOne({ where: { promotion_type } })
 
         if (!promotion) {
@@ -48,7 +58,7 @@ export class PromotionsService {
             data: {
                 promotion: promotionDto,
             },
-             message: "Promotion Added Successfully"
+            message: "Promotion Added Successfully"
         })
     }
     async updatePromotion(promotionId: string, promotionDto: UpdatePromotionDto) {

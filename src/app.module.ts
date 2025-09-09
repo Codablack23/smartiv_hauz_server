@@ -5,6 +5,14 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppDataSource } from './config';
 import { AuthModule } from './auth/auth.module';
 import { PromotionsModule } from './promotions/promotions.module';
+import { SeederModule } from './seeder/seeder.module';
+import { ArticleModule } from './article/article.module';
+import { VideosModule } from './videos/videos.module';
+import { OffersModule } from './offers/offers.module';
+import { QuotesModule } from './quotes/quotes.module';
+import { ProjectsModule } from './projects/projects.module';
+import { ClientsModule } from './clients/clients.module';
+import { StatsModule } from './stats/stats.module';
 
 @Module({
   imports: [
@@ -18,6 +26,14 @@ import { PromotionsModule } from './promotions/promotions.module';
     }),
     AuthModule,
     PromotionsModule,
+    SeederModule,
+    ArticleModule,
+    VideosModule,
+    OffersModule,
+    QuotesModule,
+    ProjectsModule,
+    ClientsModule,
+    StatsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

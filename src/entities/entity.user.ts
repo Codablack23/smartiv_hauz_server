@@ -6,10 +6,12 @@ import {
     Entity, 
     PrimaryGeneratedColumn, 
     UpdateDateColumn,
-    BeforeUpdate
+    BeforeUpdate,
+    OneToMany,
 } from "typeorm";
 import bcrypt from "bcrypt"
 import { UserType } from "src/lib";
+import { ArticleEntity } from "./entity.article";
 
 @Entity({name:"users"})
 export class UserEntity {
@@ -25,18 +27,11 @@ export class UserEntity {
     @Column("longtext")
     email: string
 
-    @Column({type:"enum",enum:UserType,default:UserType.USER})
+    @Column({type:"enum",enum:UserType,default:UserType.SUPER_ADMIN})
     user_type:UserType
 
     @Column("longtext",)
     password: string
-
-    @Column("longtext",)
-    phone_number: string
-
-    @Column("longtext", {nullable:true})
-    telegram_handle?: string
-
 
     @BeforeInsert()
     async hashPassword() {
@@ -51,6 +46,9 @@ export class UserEntity {
             this.password = await bcrypt.hash(this.password, salt);
         }
     }
+
+    @OneToMany(()=>ArticleEntity,(article)=>article.author)
+    articles:ArticleEntity[]
 
     @CreateDateColumn()
     created_at: Date

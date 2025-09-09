@@ -17,6 +17,12 @@ export interface IEnvironment {
     NAME: string;
     PASSWORD: string;
   };  
+  SEEDER_ADMIN: {
+    EMAIL: string;
+    FIRSTNAME: string;
+    LASTNAME: string;
+    PASSWORD: string;
+  };  
   OAUTH: {
     GOOGLE_OAUTH_CLIENT_ID: string;
   };
@@ -50,6 +56,12 @@ export const ENVIRONMENT: IEnvironment = {
     USERNAME: process.env.DB_USERNAME ?? "",
     PASSWORD: process.env.DB_PASSWORD ?? "",
     NAME: process.env.DB_NAME ?? "",
+  },
+  SEEDER_ADMIN: {
+    EMAIL: process.env.ADMIN_EMAIL ?? "",
+    PASSWORD: process.env.ADMIN_PASSWORD ?? "",
+    FIRSTNAME: process.env.ADMIN_FIRSTNAME ?? "",
+    LASTNAME: process.env.ADMIN_LASTNAME ?? "",
   },
   SECRETS:{
     JWT_SECRET:process.env.JWT_SECRET ?? ""
