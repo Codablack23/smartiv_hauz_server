@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import {
   BadRequestException,
   Injectable,
@@ -17,7 +18,7 @@ export class ArticleService {
     private articleRepository: Repository<ArticleEntity>,
   ) {}
 
-  async create(createArticleDto: CreateArticleDto) {
+  async create(createArticleDto: CreateArticleDto, user: any) {
     const articleSlug = SanitizerProvider.generateSlug(createArticleDto.title);
 
     const existingArticle = await this.articleRepository.findOne({
@@ -33,6 +34,7 @@ export class ArticleService {
 
     const newArticle = this.articleRepository.create({
       ...createArticleDto,
+      author: user,
     });
 
     const article = await this.articleRepository.save(newArticle);

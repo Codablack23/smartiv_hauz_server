@@ -17,7 +17,7 @@ export class CreateArticleDto {
   })
   @IsNotEmpty({ message: 'Please provide an article title' })
   @Length(3, undefined, {
-    message: 'Please provide an article with atleast 3 characters',
+    message: 'Please provide an article title with atleast 3 characters',
   })
   @IsString()
   title: string;
@@ -30,7 +30,7 @@ export class CreateArticleDto {
   })
   @IsNotEmpty({ message: 'Please provide an article content' })
   @Length(15, undefined, {
-    message: 'Please provide an article with atleast 15 characters',
+    message: 'Please provide an article content with atleast 15 characters',
   })
   @IsString()
   content: string;
