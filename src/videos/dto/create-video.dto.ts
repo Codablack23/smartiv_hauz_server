@@ -2,7 +2,6 @@
 import { 
   IsString, 
   IsUrl, 
-  IsInt, 
   IsBoolean, 
   IsOptional, 
   IsArray, 
@@ -32,13 +31,6 @@ export class CreateVideoDto {
   })
   @IsUrl()
   video_url: string;
-
-  @ApiProperty({
-    description: "Duration of the video in seconds",
-    example: 3600,
-  })
-  @IsInt()
-  duration: number;
 
   @ApiPropertyOptional({
     description: "Whether the video is featured",

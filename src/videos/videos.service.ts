@@ -30,7 +30,10 @@ export class VideosService {
       );
     }
 
-    const newVideo = this.videoRepository.create(createVideoDto);
+    const newVideo = this.videoRepository.create({
+      ...createVideoDto,
+      duration: 0,
+    });
     const video = await this.videoRepository.save(newVideo);
 
     return AppResponse.getResponse('success', {
@@ -99,7 +102,6 @@ export class VideosService {
       video.banner_url = sanitized.banner_url;
     if (sanitized.video_url !== undefined)
       video.video_url = sanitized.video_url;
-    if (sanitized.duration !== undefined) video.duration = sanitized.duration;
     if (sanitized.is_featured !== undefined)
       video.is_featured = sanitized.is_featured;
     if (sanitized.description !== undefined)
