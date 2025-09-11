@@ -28,6 +28,9 @@ export class ProjectEntity {
 
     @Column("longtext")
     project_url: string
+    
+    @Column("longtext")
+    banner_url: string
 
     @Column("longtext")
     slug: string

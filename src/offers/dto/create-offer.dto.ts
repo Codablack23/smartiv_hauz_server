@@ -27,5 +27,5 @@ export class CreateOfferDto {
 
   @ApiProperty({ example: "2025-12-31T23:59:59Z" })
   @IsDateString()
-  expires_at: Date;
+  expires_at: string;
 }

@@ -4,7 +4,8 @@ import {
   IsUrl, 
   IsOptional, 
   IsEnum, 
-  IsUUID 
+  IsUUID, 
+  IsNotEmpty
 } from "class-validator";
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { PromotionType } from "src/lib";
@@ -32,6 +33,15 @@ export class CreateProjectDto {
   @IsString()
   @IsOptional()
   description?: string;
+
+    @ApiProperty({
+      description: 'Banner image URL for the project',
+      example: 'https://example.com/uploads/article-banner.png',
+    })
+    @IsNotEmpty({ message: 'Please provide an project banner image' })
+    @IsUrl()
+    banner_url: string;
+  
 
   @ApiProperty({
     description: "Project type (promotion type)",

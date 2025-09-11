@@ -28,7 +28,7 @@ export class OffersService {
     const offers = await this.offersRepository.find();
     return AppResponse.getResponse("success", {
       message: "Offers fetched successfully",
-      data: offers,
+      data: {offers},
     });
   }
 
@@ -43,7 +43,7 @@ export class OffersService {
     }
     return AppResponse.getResponse("success", {
       message: "Offer fetched successfully",
-      data: offer,
+      data: {offer},
     });
   }
 
@@ -62,7 +62,7 @@ export class OffersService {
 
     return AppResponse.getResponse("success", {
       message: "Offer updated successfully",
-      data: updated,
+      data: {offer:updated},
     });
   }
 
