@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import {
   Injectable,
   NotAcceptableException,
@@ -13,6 +14,8 @@ import { InvoiceAddOnEntity } from 'src/entities/entity.invoice_addon';
 import { InvoiceProductEntity } from 'src/entities/entity.invoice_products';
 import { DateTime } from 'luxon';
 import { AppResponse } from 'src/lib/';
+import { Request, Response } from 'express';
+import puppeteer from 'puppeteer';
 
 @Injectable()
 export class InvoicesService {
@@ -27,7 +30,7 @@ export class InvoicesService {
     private invoiceAddonRepository: Repository<InvoiceAddOnEntity>,
     @InjectRepository(InvoiceNoteEntity)
     private invoiceNoteRepository: Repository<InvoiceNoteEntity>,
-  ) {}
+  ) { }
 
   async generate(createCustomerDto: CreateCustomerDto) {
     const customer = await this.customerRepoistory.findOne({
@@ -103,6 +106,53 @@ export class InvoicesService {
       },
       message: 'Invoice retrieved successfully',
     });
+  }
+  async downloadInvoice(id: string, req: Request, res: Response) {
+    const invoice = await this.invoiceRepository.findOne({
+      where: { id },
+      relations: {
+        addons: true,
+        products: true,
+        notes: true,
+      },
+    });
+
+    if (!invoice) {
+      throw new NotFoundException('Invoice could not be found');
+    }
+
+    // ✅ Dynamically build the frontend invoice URL from request origin
+    const origin = `https://smartivhauz.com`;
+    const invoiceUrl = `${origin}/invoices/${id}`; // this should be your Next.js invoice route
+    console.log({ origin,req ,invoiceUrl })
+    // ✅ launch puppeteer
+    const browser = await puppeteer.launch({
+      headless: true,
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    });
+    const page = await browser.newPage();
+
+    // ✅ navigate to frontend invoice page
+    await page.goto(invoiceUrl, {
+      waitUntil: 'networkidle0',
+    });
+
+    // ✅ generate PDF
+    const pdfBuffer = await page.pdf({
+      format: 'A4',
+      printBackground: true,
+    });
+
+    await browser.close();
+
+    // ✅ set headers for download
+    res.set({
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': `attachment; filename=invoice-${invoice.id}.pdf`,
+      'Content-Length': pdfBuffer.length,
+    });
+
+    return res.end(pdfBuffer);
   }
 
   async publishInvoice(id: string) {

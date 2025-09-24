@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Body, Param, Patch } from '@nestjs/common';
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Patch,
+  Request,
+  Response,
+} from '@nestjs/common';
 import { InvoicesService } from './invoices.service';
 import { CreateCustomerDto, UpdateInvoiceDto } from './dto/create-invoice.dto';
 
@@ -28,8 +38,13 @@ export class InvoicesController {
     return this.invoicesService.updateInvoice(id, updateInvoiceDto);
   }
 
+  @Get(':id/download')
+  downloadInvoice(@Param('id') id: string, @Request() req, @Response() res) {
+    return this.invoicesService.downloadInvoice(id, req, res);
+  }
+
   @Post(':id/publish')
   publishInvoice(@Param('id') id: string) {
-    return this.invoicesService.findOne(id);
+    return this.invoicesService.publishInvoice(id);
   }
 }
