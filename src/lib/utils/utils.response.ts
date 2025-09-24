@@ -14,4 +14,10 @@ export class AppResponse {
       data: apiResponse.data,
     };
   }
+  static getSuccessResponse<T>(apiResponse: ApiResponse<T>) {
+    return this.getResponse('success', apiResponse);
+  }
+  static getFailedResponse(message: string) {
+    return this.getResponse('success', { message });
+  }
 }
