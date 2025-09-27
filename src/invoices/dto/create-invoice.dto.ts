@@ -1,7 +1,17 @@
 /* eslint-disable prettier/prettier */
 import { ApiProperty, PartialType } from "@nestjs/swagger";
 import { Type } from "class-transformer";
-import { IsArray, IsDate,IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, ValidateNested, IsNumber } from "class-validator";
+import {
+  IsArray,
+  IsDate,
+  IsEmail,
+  IsEnum,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  ValidateNested,
+  IsNumber,
+} from "class-validator";
 import { AddonType } from "src/entities/entity.invoice_addon";
 import { InvoiceStatus } from "src/entities/entity.invoices";
 
@@ -26,17 +36,15 @@ export class CreateCustomerDto {
   phone_number: string;
 }
 
-
-
 export class InvoiceProductDto {
   @ApiProperty({ example: "Product Title" })
   @IsString()
   title: string;
 
   @ApiProperty({ example: "prod_12345" })
-  @IsString()
   @IsOptional()
-  product_id: string;
+  @IsString()
+  product_id?: string;
 
   @ApiProperty({ example: 5000 })
   @IsNumber()
@@ -68,10 +76,10 @@ export class InvoiceNoteDto {
 }
 
 export class CreateInvoiceDto {
-  @ApiProperty({ example: "My Company Ltd." })
+  @ApiProperty({ example: "My Company Ltd.", required: false })
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
-  company_name: string;
+  company_name?: string;
 
   @ApiProperty({ example: "Web development project", required: false })
   @IsOptional()
@@ -85,6 +93,7 @@ export class CreateInvoiceDto {
 
   @ApiProperty({ type: String, format: "date", required: false })
   @IsOptional()
+  @Type(() => Date)
   @IsDate()
   published_at?: Date;
 
@@ -105,13 +114,60 @@ export class CreateInvoiceDto {
 
   @ApiProperty({ type: String, format: "date", required: false })
   @IsOptional()
+  @Type(() => Date)
   @IsDate()
   due_date?: Date;
 
   @ApiProperty({ type: String, format: "date", required: false })
   @IsOptional()
+  @Type(() => Date)
   @IsDate()
   expires_at?: Date;
+
+  @ApiProperty({ example: "modern_template", required: false })
+  @IsOptional()
+  @IsString()
+  template_name?: string;
+
+  @ApiProperty({ example: "#FF5733", required: false })
+  @IsOptional()
+  @IsString()
+  theme_color?: string;
+
+  @ApiProperty({ example: "123 Main Street, Lagos", required: false })
+  @IsOptional()
+  @IsString()
+  company_address?: string;
+
+  @ApiProperty({ example: "info@mycompany.com", required: false })
+  @IsOptional()
+  @IsEmail()
+  company_email?: string;
+
+  @ApiProperty({ example: "+2348012345678", required: false })
+  @IsOptional()
+  @IsString()
+  company_phone?: string;
+
+  @ApiProperty({ example: "Zenith Bank", required: false })
+  @IsOptional()
+  @IsString()
+  bank_name?: string;
+
+  @ApiProperty({ example: "058", required: false })
+  @IsOptional()
+  @IsString()
+  bank_code?: string;
+
+  @ApiProperty({ example: "My Company Ltd.", required: false })
+  @IsOptional()
+  @IsString()
+  account_name?: string;
+
+  @ApiProperty({ example: "1234567890", required: false })
+  @IsOptional()
+  @IsString()
+  account_number?: string;
 
   @ApiProperty({ type: [InvoiceProductDto], required: false })
   @IsOptional()
@@ -133,7 +189,6 @@ export class CreateInvoiceDto {
   @ValidateNested({ each: true })
   @Type(() => InvoiceNoteDto)
   notes?: InvoiceNoteDto[];
-
 }
 
 export class UpdateInvoiceDto extends PartialType(CreateInvoiceDto) {}

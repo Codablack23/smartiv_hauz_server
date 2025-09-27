@@ -26,6 +26,33 @@ export class InvoiceEntity {
 
   @Column({ type: "varchar", length: 255 })
   company_name: string;
+  
+  @Column({ type: "varchar", length: 255,nullable:true  })
+  template_name?: string;
+  
+  @Column({ type: "varchar", length: 255,nullable:true  })
+  theme_color?: string;
+  
+  @Column({ type: "varchar", length: 255,nullable:true  })
+  company_address?: string;
+  
+  @Column({ type: "varchar", length: 255,nullable:true  })
+  company_email?: string;
+  
+  @Column({ type: "varchar", length: 255,nullable:true })
+  company_phone?: string;
+  
+  @Column({ type: "varchar", length: 255,nullable:true  })
+  bank_name?: string;
+  
+  @Column({ type: "varchar", length: 255,nullable:true  })
+  bank_code?: string;
+  
+  @Column({ type: "varchar", length: 255,nullable:true })
+  account_name: string;
+  
+  @Column({ type: "varchar", length: 255,nullable:true  })
+  account_number: string;
 
   @Column({ type: "varchar", length: 255, nullable: true })
   subject: string;

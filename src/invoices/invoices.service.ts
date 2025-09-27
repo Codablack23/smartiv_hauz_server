@@ -192,6 +192,9 @@ export class InvoicesService {
   }
 
   async updateInvoice(id: string, updateInvoiceDto: UpdateInvoiceDto) {
+
+    console.log(updateInvoiceDto)
+
     const invoice = await this.invoiceRepository.findOne({
       where: { id },
       relations: {
