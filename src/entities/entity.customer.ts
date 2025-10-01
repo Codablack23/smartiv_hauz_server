@@ -16,10 +16,10 @@ export class CustomerEntity {
     @PrimaryGeneratedColumn("uuid")
     id: string;
 
-    @Column("longtext",{unique:true})
+    @Column("longtext")
     company_name: string
 
-    @Column("longtext")
+    @Column("longtext",{unique:true})
     email: string
 
     @Column("longtext")
