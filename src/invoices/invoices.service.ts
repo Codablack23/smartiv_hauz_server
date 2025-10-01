@@ -1,5 +1,6 @@
 /* eslint-disable prettier/prettier */
 import {
+  ForbiddenException,
   Injectable,
   NotAcceptableException,
   NotFoundException,
@@ -16,12 +17,15 @@ import { DateTime } from 'luxon';
 import { AppResponse } from 'src/lib/';
 import { Request, Response } from 'express';
 import puppeteer from 'puppeteer';
+import { CustomerService } from 'src/customer/customer.service';
 
 @Injectable()
 export class InvoicesService {
   constructor(
+
+    private customerService: CustomerService,
     @InjectRepository(CustomerEntity)
-    private customerRepoistory: Repository<CustomerEntity>,
+    private customerRepository: Repository<CustomerEntity>,
     @InjectRepository(InvoiceEntity)
     private invoiceRepository: Repository<InvoiceEntity>,
     @InjectRepository(InvoiceProductEntity)
@@ -32,34 +36,13 @@ export class InvoicesService {
     private invoiceNoteRepository: Repository<InvoiceNoteEntity>,
   ) { }
 
-  async generate(createCustomerDto: CreateCustomerDto) {
-    const customer = await this.customerRepoistory.findOne({
-      where: { email: createCustomerDto.email },
+  async generateNewInvoice(customerId: string) {
+    const customer = await this.customerRepository.findOne({
+      where: { id: customerId },
     });
 
     if (!customer) {
-      const newCustomer = this.customerRepoistory.create({
-        email: createCustomerDto.email,
-        name: createCustomerDto.name,
-        phone_number: createCustomerDto.phone_number,
-        company_name: createCustomerDto.company_name,
-      });
-
-      const customerDetails = await this.customerRepoistory.save(newCustomer);
-      const invoiceInstance = this.invoiceRepository.create({
-        company_name: customerDetails.company_name,
-        customer: customerDetails,
-        expires_at: DateTime.now().plus({ months: 1 }).toFormat('dd-mm-yyyy'),
-      });
-
-      const invoice = await this.invoiceRepository.save(invoiceInstance);
-
-      return AppResponse.getSuccessResponse({
-        data: {
-          invoice,
-        },
-        message: 'Invoice generated successfully',
-      });
+      throw new ForbiddenException(AppResponse.getFailedResponse("Customer Details not found"))
     }
 
     const invoiceInstance = this.invoiceRepository.create({
@@ -72,14 +55,76 @@ export class InvoicesService {
 
     return AppResponse.getSuccessResponse({
       data: {
+        invoice_id: invoice.id,
+      },
+      message: 'Invoice generated successfully',
+    });
+  }
+  async generate(createCustomerDto: CreateCustomerDto) {
+    const customer = await this.customerRepository.findOne({
+      where: { email: createCustomerDto.email },
+    });
+
+    if (!customer) {
+      const newCustomer = this.customerRepository.create({
+        email: createCustomerDto.email,
+        name: createCustomerDto.name,
+        phone_number: createCustomerDto.phone_number,
+        company_name: createCustomerDto.company_name,
+      });
+
+      const customerDetails = await this.customerRepository.save(newCustomer);
+      const invoiceInstance = this.invoiceRepository.create({
+        company_name: customerDetails.company_name,
+        customer: customerDetails,
+        expires_at: DateTime.now().plus({ months: 1 }).toFormat('dd-mm-yyyy'),
+      });
+
+      const invoice = await this.invoiceRepository.save(invoiceInstance);
+      const customer_token = await this.customerService.generateCustomerToken(customerDetails)
+
+
+      return AppResponse.getSuccessResponse({
+        data: {
+          invoice,
+          customer_token,
+        },
+        message: 'Invoice generated successfully',
+      });
+    }
+
+    const invoiceInstance = this.invoiceRepository.create({
+      company_name: customer.company_name,
+      customer,
+      expires_at: DateTime.now().plus({ months: 1 }).toFormat('dd-mm-yyyy'),
+    });
+
+    const invoice = await this.invoiceRepository.save(invoiceInstance);
+    const customer_token = await this.customerService.generateCustomerToken(customer)
+
+    return AppResponse.getSuccessResponse({
+      data: {
         invoice,
+        customer_token,
       },
       message: 'Invoice generated successfully',
     });
   }
 
-  findAll() {
-    return `This action returns all invoices`;
+  async findAll(customerId: string) {
+    const invoices = await this.invoiceRepository.find({
+      where: {
+        customer: {
+          id: customerId
+        }
+      }
+    })
+    return AppResponse.getSuccessResponse({
+      message: "Invoices Retrieved Successfully",
+      data: {
+        invoices,
+      }
+    })
   }
 
   async findOne(id: string) {
@@ -124,7 +169,7 @@ export class InvoicesService {
     // ✅ Dynamically build the frontend invoice URL from request origin
     const origin = `https://smartivhauz.com`;
     const invoiceUrl = `${origin}/invoices/${id}`; // this should be your Next.js invoice route
-    console.log({ origin,req ,invoiceUrl })
+    console.log({ origin, req, invoiceUrl })
     // ✅ launch puppeteer
     const browser = await puppeteer.launch({
       headless: true,
@@ -191,63 +236,72 @@ export class InvoicesService {
     });
   }
 
-  async updateInvoice(id: string, updateInvoiceDto: UpdateInvoiceDto) {
+  async updateInvoice(customerId: string, id: string, updateInvoiceDto: UpdateInvoiceDto) {
+  const invoice = await this.invoiceRepository.findOne({
+    where: { id, customer: { id: customerId } },
+    relations: {
+      addons: true,
+      products: true,
+      notes: true,
+    },
+  });
 
-    console.log(updateInvoiceDto)
-
-    const invoice = await this.invoiceRepository.findOne({
-      where: { id },
-      relations: {
-        addons: true,
-        products: true,
-        notes: true,
-      },
-    });
-
-    if (!invoice) {
-      throw new NotFoundException(
-        AppResponse.getFailedResponse('Invoice could not be found'),
-      );
-    }
-
-    if (invoice.status != InvoiceStatus.DRAFT) {
-      throw new NotAcceptableException(
-        AppResponse.getFailedResponse('Only draft invoices can be edited'),
-      );
-    }
-
-    // Exclude customer
-    const { products, addons, notes, ...rest } = updateInvoiceDto;
-
-    // Merge top-level fields (company_name, subject, etc.)
-    Object.assign(invoice, rest);
-
-    // Replace relations only if provided
-    if (products) {
-      invoice.products = products.map((p) =>
-        this.invoiceProductRepository.create({ ...p, invoice }),
-      );
-    }
-
-    if (addons) {
-      invoice.addons = addons.map((a) =>
-        this.invoiceAddonRepository.create({ ...a, invoice }),
-      );
-    }
-
-    if (notes) {
-      invoice.notes = notes.map((n) =>
-        this.invoiceNoteRepository.create({ ...n, invoice }),
-      );
-    }
-
-    const saved = await this.invoiceRepository.save(invoice);
-
-    return AppResponse.getSuccessResponse({
-      data: { invoice: saved },
-      message: 'Invoice updated successfully',
-    });
+  if (!invoice) {
+    throw new NotFoundException(
+      AppResponse.getFailedResponse('Invoice could not be found'),
+    );
   }
+
+  if (invoice.status != InvoiceStatus.DRAFT) {
+    throw new NotAcceptableException(
+      AppResponse.getFailedResponse('Only draft invoices can be edited'),
+    );
+  }
+
+  // Extract relations and other fields
+  const { products, addons, notes, ...rest } = updateInvoiceDto;
+
+  // Merge top-level fields
+  Object.assign(invoice, rest);
+
+  // 🔴 First remove old relations
+  await this.invoiceProductRepository.delete({ invoice: { id: invoice.id } });
+  await this.invoiceAddonRepository.delete({ invoice: { id: invoice.id } });
+  await this.invoiceNoteRepository.delete({ invoice: { id: invoice.id } });
+
+  // 🟢 Reassign new ones only if provided
+  if (products) {
+    invoice.products = products.map((p) =>
+      this.invoiceProductRepository.create({ ...p, invoice }),
+    );
+  } else {
+    invoice.products = [];
+  }
+
+  if (addons) {
+    invoice.addons = addons.map((a) =>
+      this.invoiceAddonRepository.create({ ...a, invoice }),
+    );
+  } else {
+    invoice.addons = [];
+  }
+
+  if (notes) {
+    invoice.notes = notes.map((n) =>
+      this.invoiceNoteRepository.create({ ...n, invoice }),
+    );
+  } else {
+    invoice.notes = [];
+  }
+
+  const saved = await this.invoiceRepository.save(invoice);
+
+  return AppResponse.getSuccessResponse({
+    data: { invoice: saved },
+    message: 'Invoice updated successfully',
+  });
+}
+
 
   remove(id: number) {
     return `This action removes a #${id} invoice`;

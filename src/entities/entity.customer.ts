@@ -9,6 +9,7 @@ import {
 } from "typeorm";
 import { } from "src/lib";
 import { InvoiceEntity } from "./entity.invoices";
+import { CustomerTokenEntity } from "./entity.customer_token";
 
 @Entity({ name: "customers" })
 export class CustomerEntity {
@@ -28,7 +29,10 @@ export class CustomerEntity {
     phone_number: string
 
     @OneToMany(()=>InvoiceEntity,(invoices)=>invoices.customer)
-    invoices:InvoiceEntity[]
+    invoices:InvoiceEntity[] 
+    
+    @OneToMany(()=>CustomerTokenEntity,(tokens)=>tokens.customer,{cascade:true})
+    tokens:CustomerTokenEntity[]
 
     @CreateDateColumn()
     created_at: Date
