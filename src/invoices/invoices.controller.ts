@@ -9,6 +9,7 @@ import {
   Request,
   Response,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { InvoicesService } from './invoices.service';
 import { CreateCustomerDto, UpdateInvoiceDto } from './dto/create-invoice.dto';
@@ -55,8 +56,13 @@ export class InvoicesController {
   }
 
   @Get(':id/download')
-  downloadInvoice(@Param('id') id: string, @Request() req, @Response() res) {
-    return this.invoicesService.downloadInvoice(id, req, res);
+  downloadInvoice(
+    @Param('id') id: string,
+    @Query('type') downloadType: 'pdf' | 'image',
+    @Request() req,
+    @Response() res,
+  ) {
+    return this.invoicesService.downloadInvoice(id, req, res, downloadType);
   }
 
   @Post(':id/publish')

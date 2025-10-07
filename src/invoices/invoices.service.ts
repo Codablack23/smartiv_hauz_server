@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable prettier/prettier */
 import {
   ForbiddenException,
@@ -152,53 +153,86 @@ export class InvoicesService {
       message: 'Invoice retrieved successfully',
     });
   }
-  async downloadInvoice(id: string, req: Request, res: Response) {
-    const invoice = await this.invoiceRepository.findOne({
-      where: { id },
-      relations: {
-        addons: true,
-        products: true,
-        notes: true,
-      },
-    });
+  async downloadInvoice(
+  id: string,
+  req: Request,
+  res: Response,
+  fileType: 'pdf' | 'image' = 'pdf',
+) {
+  // 1️⃣ Fetch invoice
+  const invoice = await this.invoiceRepository.findOne({
+    where: { id },
+    relations: {
+      addons: true,
+      products: true,
+      notes: true,
+    },
+  });
 
-    if (!invoice) {
-      throw new NotFoundException('Invoice could not be found');
-    }
+  if (!invoice) {
+    throw new NotFoundException('Invoice could not be found');
+  }
 
-    // ✅ Dynamically build the frontend invoice URL from request origin
-    const origin = `https://smartivhauz.com`;
-    const invoiceUrl = `${origin}/invoices/${id}`; // this should be your Next.js invoice route
-    console.log({ origin, req, invoiceUrl })
-    // ✅ launch puppeteer
-    const browser = await puppeteer.launch({
-      headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
-    });
+  // 2️⃣ Build invoice page URL
+  const origin = `https://smartivhauz.com`;
+  const invoiceUrl = `${origin}/invoices/${id}`;
+
+  console.log({ origin, invoiceUrl });
+
+  // 3️⃣ Launch Puppeteer
+  const browser = await puppeteer.launch({
+    headless: true,
+    args: [
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      '--disable-dev-shm-usage',
+      '--disable-gpu',
+    ],
+  });
+
+  try {
     const page = await browser.newPage();
 
-    // ✅ navigate to frontend invoice page
     await page.goto(invoiceUrl, {
       waitUntil: 'networkidle0',
     });
 
-    // ✅ generate PDF
-    const pdfBuffer = await page.pdf({
-      format: 'A4',
-      printBackground: true,
-    });
+    let buffer: Buffer;
+    let mimeType: string;
+    let fileExtension: string;
 
-    await browser.close();
+    // 4️⃣ Generate file based on type
+    if (fileType === 'pdf') {
+      buffer = await page.pdf({
+        format: 'A4',
+        printBackground: true,
+      }) as any;
+      mimeType = 'application/pdf';
+      fileExtension = 'pdf';
+    } else {
+      buffer = await page.screenshot({
+        fullPage: true,
+        type: 'png',
+      }) as any;
+      mimeType = 'image/png';
+      fileExtension = 'png';
+    }
 
-    // ✅ set headers for download
+    // 5️⃣ Respond with file
     res.set({
-      'Content-Type': 'application/pdf',
-      'Content-Disposition': `attachment; filename=invoice-${invoice.id}.pdf`,
-      'Content-Length': pdfBuffer.length,
+      'Content-Type': mimeType,
+      'Content-Disposition': `attachment; filename=invoice-${invoice.id}.${fileExtension}`,
+      'Content-Length': buffer.length,
     });
 
-    return res.end(pdfBuffer);
+    return res.end(buffer);
+  } catch (err) {
+    console.error('❌ Puppeteer error:', err);
+    throw new NotFoundException('Failed to generate invoice file');
+  } finally {
+    await browser.close();
   }
+}
 
   async publishInvoice(id: string) {
     const invoice = await this.invoiceRepository.findOne({
