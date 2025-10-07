@@ -175,7 +175,7 @@ export class InvoicesService {
 
   // 2️⃣ Build invoice page URL
   const origin = `https://smartivhauz.com`;
-  const invoiceUrl = `${origin}/invoices/${id}`;
+  const invoiceUrl = `${origin}/invoices/${id}/view`;
 
   console.log({ origin, invoiceUrl });
 
