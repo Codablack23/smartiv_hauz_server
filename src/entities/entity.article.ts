@@ -23,6 +23,9 @@ export class ArticleEntity {
 
     @Column("longtext")
     banner_url: string
+    
+    @Column("int",{default:0})
+    views: number
 
     @ManyToOne(() => UserEntity, (user) => user.articles)
     @JoinColumn()

@@ -15,6 +15,7 @@ import { ClientsModule } from './clients/clients.module';
 import { StatsModule } from './stats/stats.module';
 import { InvoicesModule } from './invoices/invoices.module';
 import { CustomerModule } from './customer/customer.module';
+import { ReviewModule } from './review/review.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { CustomerModule } from './customer/customer.module';
     StatsModule,
     InvoicesModule,
     CustomerModule,
+    ReviewModule,
   ],
   controllers: [AppController],
   providers: [AppService],

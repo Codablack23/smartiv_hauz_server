@@ -9,6 +9,7 @@ import {
   Delete,
   UseGuards,
   Request,
+  Query,
 } from '@nestjs/common';
 import { ArticleService } from './article.service';
 import { CreateArticleDto } from './dto/create-article.dto';
@@ -28,8 +29,8 @@ export class ArticleController {
   }
 
   @Get()
-  findAll() {
-    return this.articleService.findAll();
+  findAll(@Query('page') page: number, @Query('limit') limit: number) {
+    return this.articleService.findAll(page, limit);
   }
 
   @Get(':id')

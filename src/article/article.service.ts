@@ -47,11 +47,45 @@ export class ArticleService {
     });
   }
 
-  async findAll() {
-    const articles = await this.articleRepository.find();
+  async findAll(page: number = 1, limit: number = 8) {
+    const [articles, total, top_articles] = await Promise.all([
+      this.articleRepository.find({
+        order: { created_at: 'DESC' },
+        skip: (page - 1) * limit,
+        take: limit,
+      }),
+      this.articleRepository.count(),
+      this.articleRepository.find({
+        order: { views: 'DESC' },
+        take: 3,
+      }),
+    ]);
+
+    const highlight = articles[0] ?? top_articles[0] ?? null;
+    const total_pages = Math.ceil(total / limit);
+
+    // 🔹 Pagination logic
+    const has_next_page = page < total_pages;
+    const has_prev_page = page > 1;
+
+    const next_page = has_next_page ? page + 1 : null;
+    const prev_page = has_prev_page ? page - 1 : null;
+
     return AppResponse.getResponse('success', {
       data: {
         articles,
+        highlight,
+        top_articles,
+        pagination: {
+          page,
+          limit,
+          total,
+          total_pages,
+          has_next_page,
+          has_prev_page,
+          next_page,
+          prev_page,
+        },
       },
       message: 'articles retrieved successfully',
     });
@@ -69,6 +103,9 @@ export class ArticleService {
             "Sorry the article you are looking for doesn't exist or may have been removed",
         }),
       );
+
+    article.views = article.views + 1;
+    await this.articleRepository.save(article);
 
     return AppResponse.getResponse('success', {
       data: {

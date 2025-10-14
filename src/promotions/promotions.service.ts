@@ -75,6 +75,9 @@ export class PromotionsService {
         }
         if (promotionDto.caption) {
             promotion.caption = promotionDto.caption
+        } 
+        if (promotionDto.content) {
+            promotion.content = promotionDto.content
         }
         if (promotionDto.title) {
             promotion.title = promotionDto.title

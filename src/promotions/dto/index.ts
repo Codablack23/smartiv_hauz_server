@@ -1,5 +1,4 @@
 /* eslint-disable prettier/prettier */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 
 import { IsEnum, IsNotEmpty, IsOptional, IsString, IsUrl, Validate, ValidationArguments, ValidatorConstraint, ValidatorConstraintInterface } from "class-validator";
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
@@ -12,6 +11,13 @@ export class AddPromotionDto {
   })
   @IsNotEmpty({ message: "Please provide a caption for the promotion." })
   caption: string;
+
+ @ApiProperty({
+    description: "Body text for the promotion, typically a long blog post",
+    example: "Unbelievable Summer Deals!",
+  })
+  @IsNotEmpty({ message: "Please provide content for the promotion." })
+  content: string;
 
   @ApiProperty({
     description: "Title of the promotion, often used as the main header.",
@@ -74,6 +80,14 @@ export class UpdatePromotionDto {
   @IsOptional()
   @IsString({ message: "Caption must be a string." })
   caption?: string;
+  
+  @ApiPropertyOptional({
+    description: "Body text for the promotion, typically a long rich content",
+    example: "Unbelievable Summer Deals!",
+  })
+  @IsOptional()
+  @IsString({ message: "Content must be a string." })
+  content?: string;
 
   @ApiPropertyOptional({
     description: "Title of the promotion, often used as the main header.",

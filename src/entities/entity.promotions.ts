@@ -16,6 +16,9 @@ export class PromotionEntity{
 
     @Column("longtext")
     caption:string
+    
+    @Column("longtext",{default:"<p></p>"})
+    content:string
 
     @Column("longtext")
     banner_url:string 
