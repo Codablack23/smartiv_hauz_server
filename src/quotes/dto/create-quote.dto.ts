@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { IsArray, IsEmail, IsNotEmpty, IsString, IsEnum } from "class-validator";
+import { IsArray, IsEmail, IsNotEmpty, IsString, IsEnum, IsOptional } from "class-validator";
 import { PromotionType } from "src/lib";
 import { ApiProperty } from "@nestjs/swagger";
 
@@ -8,6 +8,11 @@ export class CreateQuoteDto {
   @IsString()
   @IsNotEmpty()
   name: string;
+  
+  @ApiProperty({ example: "Smartiv Hauz" })
+  @IsString()
+  @IsOptional()
+  company_name: string;
 
   @ApiProperty({ example: "john@example.com" })
   @IsEmail()

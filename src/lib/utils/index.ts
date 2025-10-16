@@ -2,3 +2,5 @@
 export * from "./utils.validator"
 export * from "./utils.sanitizer"
 export * from "./utils.response"
+export * from "./utils.mailer"
+export * from "./utils.template"

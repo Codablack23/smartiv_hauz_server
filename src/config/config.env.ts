@@ -35,7 +35,8 @@ export interface IEnvironment {
     BUNNY_ACCESS_KEY: string;
   };
   SECRETS:{
-    JWT_SECRET:string
+    JWT_SECRET:string,
+    ZOHO_TOKEN:string
   },
   PAYSTACK:{
     PAYSTACK_SECRET:string
@@ -64,7 +65,8 @@ export const ENVIRONMENT: IEnvironment = {
     LASTNAME: process.env.ADMIN_LASTNAME ?? "",
   },
   SECRETS:{
-    JWT_SECRET:process.env.JWT_SECRET ?? ""
+    JWT_SECRET:process.env.JWT_SECRET ?? "",
+    ZOHO_TOKEN:process.env.ZOHO_TOKEN ?? ""
   },
   PAYSTACK:{
     PAYSTACK_SECRET:process.env.PAYSTACK_SECRET ?? ""

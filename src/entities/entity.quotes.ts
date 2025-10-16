@@ -13,11 +13,14 @@ export class QuoteEntity {
     @PrimaryGeneratedColumn("uuid")
     id: string;
 
-    @Column("longtext", { unique: true })
+    @Column("longtext", { unique: false })
     name: string
 
     @Column("longtext")
     email: string
+    
+    @Column("longtext",{nullable:true})
+    company_name?: string
 
     @Column("longtext")
     phone_number: string

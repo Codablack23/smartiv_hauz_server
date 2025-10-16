@@ -5,7 +5,8 @@ import { Repository } from "typeorm";
 import { QuoteEntity } from "src/entities/entity.quotes";
 import { CreateQuoteDto } from "./dto/create-quote.dto";
 import { UpdateQuoteDto } from "./dto/update-quote.dto";
-import { AppResponse } from "src/lib";
+import { AppResponse, MailProvider } from "src/lib";
+import { EmailTemplateProvider } from "src/lib";
 
 @Injectable()
 export class QuotesService {
@@ -15,15 +16,33 @@ export class QuotesService {
   ) {}
 
   async create(createQuoteDto: CreateQuoteDto) {
-    const existing = await this.quoteRepository.findOne({ where: { name: createQuoteDto.name } });
-    if (existing) {
-      throw new BadRequestException(
-        AppResponse.getResponse("failed", { message: "A quote with this name already exists" }),
-      );
-    }
+    // const existing = await this.quoteRepository.findOne({ where: { name: createQuoteDto.name } });
+    // if (existing) {
+    //   throw new BadRequestException(
+    //     AppResponse.getResponse("failed", { message: "A quote with this name already exists" }),
+    //   );
+    // }
 
     const newQuote = this.quoteRepository.create(createQuoteDto);
     const saved = await this.quoteRepository.save(newQuote);
+
+    const adminHtmlTemplate = EmailTemplateProvider.generateAdminQuoteTemplate(createQuoteDto)
+    const userHtml = EmailTemplateProvider.generateUserQuoteReceiverTemplate(createQuoteDto)
+
+    Promise.all([
+      MailProvider.sendMail({
+        subject:"Quote Received",
+        html:adminHtmlTemplate,
+        to:["admin@smartivhauz.com"]
+      }) ,
+      MailProvider.sendMail({
+        subject:"Quote Received",
+        html:userHtml,
+        to:[createQuoteDto.email]
+      })
+    ]).catch(err=>{
+      console.log(`An Error occured could not send templates ${err}`)
+    })
 
     return AppResponse.getResponse("success", {
       data: { quote: saved },
