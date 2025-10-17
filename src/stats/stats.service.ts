@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { CustomerEntity } from 'src/entities/entity.customer';
 import { ClientEntity } from 'src/entities/entity.clients';
 import { ProjectEntity, ProjectStatus } from 'src/entities/entity.projects';
 import { QuoteEntity } from 'src/entities/entity.quotes';
@@ -15,6 +16,8 @@ export class StatsService {
     private projectRepository: Repository<ProjectEntity>,
     @InjectRepository(QuoteEntity)
     private quoteRepository: Repository<QuoteEntity>,
+    @InjectRepository(CustomerEntity)
+    private customerRepo: Repository<CustomerEntity>,
   ) {}
 
   async getStats() {
@@ -23,6 +26,7 @@ export class StatsService {
       pending_projects,
       total_clients,
       total_quote_requests,
+      customers,
     ] = await Promise.all([
       this.projectRepository.count(),
       this.projectRepository.count({
@@ -30,6 +34,7 @@ export class StatsService {
       }),
       this.clientRepository.count(),
       this.quoteRepository.count(),
+      this.customerRepo.count(),
     ]);
 
     return AppResponse.getResponse('success', {
@@ -38,6 +43,7 @@ export class StatsService {
         total_projects,
         total_quote_requests,
         pending_projects,
+        customers,
       },
       message: 'Stats retrieved successfully',
     });

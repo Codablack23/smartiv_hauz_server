@@ -11,6 +11,8 @@ export class CustomerService {
   constructor(
     @InjectRepository(CustomerTokenEntity)
     private customerTokenRepo: Repository<CustomerTokenEntity>,
+    @InjectRepository(CustomerEntity)
+    private customerEntity: Repository<CustomerEntity>,
   ) {}
 
   async getCustomer(token: string) {
@@ -32,6 +34,27 @@ export class CustomerService {
     }
 
     return customerToken.customer;
+  }
+  async getCustomers() {
+    const customersRes = await this.customerEntity.find({
+      relations: {
+        invoices: true,
+      },
+    });
+
+    const customers = customersRes.map((item) => {
+      return {
+        ...item,
+        invoices_generated: item.invoices.length,
+      };
+    });
+
+    return AppResponse.getSuccessResponse({
+      message: 'Customers Retrieved successfully',
+      data: {
+        customers,
+      },
+    });
   }
 
   async generateCustomerToken(customer: CustomerEntity) {

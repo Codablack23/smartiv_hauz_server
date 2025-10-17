@@ -3,6 +3,7 @@ import { CustomerService } from './customer.service';
 import { CustomerTokenGuard } from 'src/lib/guards/customer.guard';
 import type { CustomerRequest } from 'src/lib/types';
 import { AppResponse } from 'src/lib';
+import { JwtAuthGuard } from 'src/providers';
 
 @Controller('customer')
 export class CustomerController {
@@ -17,5 +18,11 @@ export class CustomerController {
         customer: req.customer,
       },
     });
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('/all')
+  getCustomers() {
+    return this.customerService.getCustomers();
   }
 }
