@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsUrl } from 'class-validator';
+import { IsEmail, IsString, IsUrl } from 'class-validator';
 
 export class CreateTeamMemberDto {
   @ApiProperty({
@@ -8,6 +8,14 @@ export class CreateTeamMemberDto {
   })
   @IsString()
   name: string;
+
+  @ApiProperty({
+    example: 'goodluckedih@gmail.com',
+    description: 'Email of the team member',
+  })
+  @IsString()
+  @IsEmail()
+  email: string;
 
   @ApiProperty({
     example: 'CTO',

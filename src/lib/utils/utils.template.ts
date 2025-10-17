@@ -137,4 +137,50 @@ export class EmailTemplateProvider {
       </html>
     `;
   }
+
+  static addTemplateHeader(body:string){
+    return (
+      `
+       <!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Quote Received</title>
+        <style>
+          body { font-family: Arial, sans-serif; background-color: #f9f9f9; margin: 0; padding: 0; }
+          .container { max-width: 600px; margin: 0 auto; background: #fff; border-radius: 8px; overflow: hidden; }
+          .header { background-color: ${this.accentColor}; padding: 16px; text-align: center; }
+          .header img { height: 40px; }
+          .content { padding: 24px; color: #333; text-align: left; }
+          h2 { color: ${this.accentColor}; margin-bottom: 16px; text-align: center; }
+          a.button { background-color: ${this.accentColor}; color: #fff; text-decoration: none; padding: 12px 20px; border-radius: 6px; display: inline-block; margin-top: 24px; font-weight: bold; }
+          .footer { background-color: #f2f2f2; text-align: center; padding: 12px; font-size: 13px; color: #666; }
+          @media screen and (max-width: 600px) {
+            .content { padding: 16px; }
+          }
+        </style>
+      </head>
+      <body>
+       
+        <div class="container">
+          <div class="header">
+            <img src="${this.logoUrl}" alt="${this.companyName} Logo" />
+          </div>
+          <div class="content">
+             ${body}
+            <p style="font-size: 12px; color: #888; margin-top: 30px; text-align: center;">
+              This is an automated message. Please do not reply to this email.
+            </p>
+          </div>
+          <div class="footer">
+            &copy; ${new Date().getFullYear()} ${this.companyName}. All rights reserved.
+          </div>
+        </div>
+      </body>
+      </html>
+      `
+    )
+  }
+
 }

@@ -16,7 +16,10 @@ export class ClientEntity {
     id: string;
 
     @Column("longtext",{unique:true})
-    company_name: string
+    company_name: string    
+    
+    @Column("longtext",{unique:true,nullable:true})
+    company_email: string
 
     @Column("longtext")
     company_logo: string

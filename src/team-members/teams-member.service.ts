@@ -15,7 +15,10 @@ export class TeamsMemberService {
 
   async create(createTeamMemberDto: CreateTeamMemberDto) {
     const existingTeamMember = await this.teamMemberRepository.findOne({
-      where: { name: createTeamMemberDto.name },
+      where: [
+        { name: createTeamMemberDto.name },
+        { email: createTeamMemberDto.email },
+      ],
     });
 
     if (existingTeamMember) {

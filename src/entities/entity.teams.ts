@@ -6,7 +6,6 @@ import {
     PrimaryGeneratedColumn,
     UpdateDateColumn,
 } from "typeorm";
-import { } from "src/lib";
 
 
 @Entity({ name: "team_members" })
@@ -19,6 +18,9 @@ export class TeamMemberEntity {
     
     @Column("longtext",{unique:true})
     position: string
+    
+    @Column("longtext",{unique:true,nullable:true})
+    email?: string
 
     @Column("longtext")
     avatar: string

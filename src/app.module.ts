@@ -17,6 +17,8 @@ import { InvoicesModule } from './invoices/invoices.module';
 import { CustomerModule } from './customer/customer.module';
 import { ReviewModule } from './review/review.module';
 import { TeamsMemberModule } from './team-members/team-member.module';
+import { EmailMessagesModule } from './email-messages/email-messages.module';
+import { ResourcesModule } from './resources/resources.module';
 
 @Module({
   imports: [
@@ -42,6 +44,8 @@ import { TeamsMemberModule } from './team-members/team-member.module';
     CustomerModule,
     ReviewModule,
     TeamsMemberModule,
+    EmailMessagesModule,
+    ResourcesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
