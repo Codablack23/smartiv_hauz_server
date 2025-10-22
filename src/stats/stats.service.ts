@@ -6,6 +6,7 @@ import { ProjectEntity, ProjectStatus } from 'src/entities/entity.projects';
 import { QuoteEntity } from 'src/entities/entity.quotes';
 import { AppResponse } from 'src/lib';
 import { Repository } from 'typeorm';
+import { LeadEntity } from 'src/entities/entity.leads';
 
 @Injectable()
 export class StatsService {
@@ -18,6 +19,8 @@ export class StatsService {
     private quoteRepository: Repository<QuoteEntity>,
     @InjectRepository(CustomerEntity)
     private customerRepo: Repository<CustomerEntity>,
+    @InjectRepository(LeadEntity)
+    private leadRepo: Repository<LeadEntity>,
   ) {}
 
   async getStats() {
@@ -27,6 +30,7 @@ export class StatsService {
       total_clients,
       total_quote_requests,
       customers,
+      total_leads,
     ] = await Promise.all([
       this.projectRepository.count(),
       this.projectRepository.count({
@@ -35,6 +39,7 @@ export class StatsService {
       this.clientRepository.count(),
       this.quoteRepository.count(),
       this.customerRepo.count(),
+      this.leadRepo.count(),
     ]);
 
     return AppResponse.getResponse('success', {
@@ -44,6 +49,7 @@ export class StatsService {
         total_quote_requests,
         pending_projects,
         customers,
+        total_leads,
       },
       message: 'Stats retrieved successfully',
     });

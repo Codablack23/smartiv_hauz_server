@@ -6,6 +6,7 @@ import { ClientEntity } from 'src/entities/entity.clients';
 import { ProjectEntity } from 'src/entities/entity.projects';
 import { QuoteEntity } from 'src/entities/entity.quotes';
 import { CustomerEntity } from 'src/entities/entity.customer';
+import { LeadEntity } from 'src/entities/entity.leads';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { CustomerEntity } from 'src/entities/entity.customer';
       ProjectEntity,
       QuoteEntity,
       CustomerEntity,
+      LeadEntity,
     ]),
   ],
   controllers: [StatsController],
