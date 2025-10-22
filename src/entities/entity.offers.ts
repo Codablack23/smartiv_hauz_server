@@ -5,10 +5,12 @@ import {
     Column,
     CreateDateColumn,
     Entity,
+    OneToMany,
     PrimaryGeneratedColumn,
     UpdateDateColumn,
 } from "typeorm";
 import { PromotionType, SanitizerProvider } from "src/lib";
+import { LeadEntity } from "./entity.leads";
 
 @Entity({ name: "offers" })
 export class OffersEntity {
@@ -38,6 +40,9 @@ export class OffersEntity {
 
     @UpdateDateColumn()
     updated_at: Date
+
+    @OneToMany(()=>LeadEntity,(lead)=>lead.offer,{cascade:true})
+    leads:LeadEntity[]
 
     @BeforeInsert()
     @BeforeUpdate()

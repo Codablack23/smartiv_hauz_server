@@ -19,6 +19,7 @@ import { ReviewModule } from './review/review.module';
 import { TeamsMemberModule } from './team-members/team-member.module';
 import { EmailMessagesModule } from './email-messages/email-messages.module';
 import { ResourcesModule } from './resources/resources.module';
+import { LeadsModule } from './leads/leads.module';
 
 @Module({
   imports: [
@@ -46,6 +47,7 @@ import { ResourcesModule } from './resources/resources.module';
     TeamsMemberModule,
     EmailMessagesModule,
     ResourcesModule,
+    LeadsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
