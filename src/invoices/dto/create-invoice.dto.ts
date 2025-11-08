@@ -174,12 +174,23 @@ export class CreateInvoiceDto {
   @IsOptional()
   @IsString()
   account_number?: string;
+  
+  
+  @ApiProperty({ example: "VAT", required: false })
+  @IsOptional()
+  @IsString()
+  tax_type?: string;
 
 
   @ApiProperty({ example: 10000 })
   @IsOptional()
   @IsNumber()
-  due_amount?: number;
+  due_amount?: number; 
+  
+  @ApiProperty({ example: 10000 })
+  @IsOptional()
+  @IsNumber()
+  tax?: number;
 
   @ApiProperty({ type: [InvoiceProductDto], required: false })
   @IsOptional()

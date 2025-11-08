@@ -75,8 +75,14 @@ export class InvoiceEntity {
   @Column('int', { nullable: true })
   due_amount?: number;
 
+  @Column('decimal', { nullable: true })
+  tax?: number;
+
   @Column({ type: 'varchar', length: 3, nullable: true })
   currency: string;
+
+  @Column({ type: 'text', nullable: true })
+  tax_type?: string;
 
   @Column({ type: 'text', nullable: true })
   logo: string;
