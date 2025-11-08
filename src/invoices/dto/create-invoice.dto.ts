@@ -13,7 +13,7 @@ import {
   IsNumber,
 } from "class-validator";
 import { AddonType } from "src/entities/entity.invoice_addon";
-import { InvoiceStatus } from "src/entities/entity.invoices";
+import { InvoiceStatus, InvoiceType } from "src/entities/entity.invoices";
 
 export class CreateCustomerDto {
   @ApiProperty({ example: "Acme Corp", description: "Unique company name of the customer" })
@@ -89,7 +89,13 @@ export class CreateInvoiceDto {
   @ApiProperty({ enum: InvoiceStatus, default: InvoiceStatus.DRAFT })
   @IsOptional()
   @IsEnum(InvoiceStatus)
-  status?: InvoiceStatus;
+  status?: InvoiceStatus; 
+  
+  
+  @ApiProperty({ enum: InvoiceType, default: InvoiceType.INVOICE })
+  @IsOptional()
+  @IsEnum(InvoiceType)
+  type?: InvoiceType = InvoiceType.INVOICE;
 
   @ApiProperty({ type: String, format: "date", required: false })
   @IsOptional()
@@ -168,6 +174,12 @@ export class CreateInvoiceDto {
   @IsOptional()
   @IsString()
   account_number?: string;
+
+
+  @ApiProperty({ example: 10000 })
+  @IsOptional()
+  @IsNumber()
+  due_amount?: number;
 
   @ApiProperty({ type: [InvoiceProductDto], required: false })
   @IsOptional()
