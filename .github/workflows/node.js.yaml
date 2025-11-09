@@ -17,6 +17,6 @@ jobs:
         key: ${{ secrets.VPS_PRIVATE_KEY }}
         port: ${{ secrets.VPS_PORT }}
         script: |
-          cd /apps/smartiv_hauz_server
+          cd apps/smartiv_hauz_server
           chmod +x deploy.sh
           ./deploy.sh
