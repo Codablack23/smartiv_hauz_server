@@ -153,33 +153,24 @@ export class InvoicesService {
       message: 'Invoice retrieved successfully',
     });
   }
-  async downloadInvoice(
+async downloadInvoice(
   id: string,
   req: Request,
   res: Response,
   fileType: 'pdf' | 'image' = 'pdf',
 ) {
-  // 1️⃣ Fetch invoice
   const invoice = await this.invoiceRepository.findOne({
     where: { id },
-    relations: {
-      addons: true,
-      products: true,
-      notes: true,
-    },
+    relations: { addons: true, products: true, notes: true },
   });
 
   if (!invoice) {
     throw new NotFoundException('Invoice could not be found');
   }
 
-  // 2️⃣ Build invoice page URL
   const origin = `https://smartivhauz.com`;
   const invoiceUrl = `${origin}/invoices/${id}/view`;
 
-  console.log({ origin, invoiceUrl });
-
-  // 3️⃣ Launch Puppeteer
   const browser = await puppeteer.launch({
     headless: true,
     args: [
@@ -193,32 +184,42 @@ export class InvoicesService {
   try {
     const page = await browser.newPage();
 
-    await page.goto(invoiceUrl, {
-      waitUntil: 'networkidle0',
+    // ✅ 1. High-quality viewport (bigger is sharper)
+    await page.setViewport({
+      width: 1600,
+      height: 2400,
+      deviceScaleFactor: 2, // You can set 3 for extra clarity
     });
+
+    await page.goto(invoiceUrl, { waitUntil: 'networkidle0' });
 
     let buffer: Buffer;
     let mimeType: string;
     let fileExtension: string;
 
-    // 4️⃣ Generate file based on type
     if (fileType === 'pdf') {
-      buffer = await page.pdf({
+      // ✅ Improved PDF quality (A4 + better print resolution)
+      buffer = (await page.pdf({
         format: 'A4',
         printBackground: true,
-      }) as any;
+        preferCSSPageSize: true,
+        margin: { top: '20px', bottom: '20px', left: '20px', right: '20px' },
+      })) as any;
+
       mimeType = 'application/pdf';
       fileExtension = 'pdf';
+
     } else {
-      buffer = await page.screenshot({
+      // ✅ Improved screenshot quality (high DPI)
+      buffer = (await page.screenshot({
         fullPage: true,
         type: 'png',
-      }) as any;
+      })) as any;
+
       mimeType = 'image/png';
       fileExtension = 'png';
     }
 
-    // 5️⃣ Respond with file
     res.set({
       'Content-Type': mimeType,
       'Content-Disposition': `attachment; filename=invoice-${invoice.id}.${fileExtension}`,
@@ -226,6 +227,7 @@ export class InvoicesService {
     });
 
     return res.end(buffer);
+
   } catch (err) {
     console.error('❌ Puppeteer error:', err);
     throw new NotFoundException('Failed to generate invoice file');
@@ -233,6 +235,7 @@ export class InvoicesService {
     await browser.close();
   }
 }
+
 
   async publishInvoice(id: string) {
     const invoice = await this.invoiceRepository.findOne({
