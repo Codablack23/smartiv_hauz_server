@@ -9,7 +9,7 @@ import { UpdateArticleDto } from './dto/update-article.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ArticleEntity } from 'src/entities/entity.article';
 import { Repository } from 'typeorm';
-import { AppResponse, SanitizerProvider } from 'src/lib';
+import { AppResponse, PaginationProvider, SanitizerProvider } from 'src/lib';
 
 @Injectable()
 export class ArticleService {
@@ -62,30 +62,14 @@ export class ArticleService {
     ]);
 
     const highlight = articles[0] ?? top_articles[0] ?? null;
-    const total_pages = Math.ceil(total / limit);
-
-    // 🔹 Pagination logic
-    const has_next_page = page < total_pages;
-    const has_prev_page = page > 1;
-
-    const next_page = has_next_page ? page + 1 : null;
-    const prev_page = has_prev_page ? page - 1 : null;
+    const pagination = PaginationProvider.getPagination({ page, total, limit });
 
     return AppResponse.getResponse('success', {
       data: {
         articles,
         highlight,
         top_articles,
-        pagination: {
-          page,
-          limit,
-          total,
-          total_pages,
-          has_next_page,
-          has_prev_page,
-          next_page,
-          prev_page,
-        },
+        pagination,
       },
       message: 'articles retrieved successfully',
     });

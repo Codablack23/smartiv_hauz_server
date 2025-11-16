@@ -1,6 +1,6 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { AppResponse } from 'src/lib';
+import { AppResponse, PaginationProvider, PaginationQuery } from 'src/lib';
 import { CustomerTokenEntity } from 'src/entities/entity.customer_token';
 import { Repository } from 'typeorm';
 import { DateTime } from 'luxon';
@@ -35,12 +35,22 @@ export class CustomerService {
 
     return customerToken.customer;
   }
-  async getCustomers() {
-    const customersRes = await this.customerEntity.find({
+  async getCustomers(query: PaginationQuery) {
+    const { take, skip, page, limit } =
+      PaginationProvider.getPaginationQuery(query);
+
+    const [customersRes, total] = await this.customerEntity.findAndCount({
       relations: {
         invoices: true,
       },
+      take,
+      skip,
+      order: {
+        created_at: 'DESC',
+      },
     });
+
+    const pagination = PaginationProvider.getPagination({ page, limit, total });
 
     const customers = customersRes.map((item) => {
       return {
@@ -53,6 +63,7 @@ export class CustomerService {
       message: 'Customers Retrieved successfully',
       data: {
         customers,
+        pagination,
       },
     });
   }

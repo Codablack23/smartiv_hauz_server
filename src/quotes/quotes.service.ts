@@ -1,12 +1,20 @@
 /* eslint-disable prettier/prettier */
-import { Injectable, BadRequestException, NotFoundException } from "@nestjs/common";
-import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
-import { QuoteEntity } from "src/entities/entity.quotes";
-import { CreateQuoteDto } from "./dto/create-quote.dto";
-import { UpdateQuoteDto } from "./dto/update-quote.dto";
-import { AppResponse, MailProvider } from "src/lib";
-import { EmailTemplateProvider } from "src/lib";
+import {
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { QuoteEntity } from 'src/entities/entity.quotes';
+import { CreateQuoteDto } from './dto/create-quote.dto';
+import { UpdateQuoteDto } from './dto/update-quote.dto';
+import {
+  AppResponse,
+  MailProvider,
+  PaginationProvider,
+  PaginationQuery,
+} from 'src/lib';
+import { EmailTemplateProvider } from 'src/lib';
 
 @Injectable()
 export class QuotesService {
@@ -26,48 +34,69 @@ export class QuotesService {
     const newQuote = this.quoteRepository.create(createQuoteDto);
     const saved = await this.quoteRepository.save(newQuote);
 
-    const adminHtmlTemplate = EmailTemplateProvider.generateAdminQuoteTemplate(createQuoteDto)
-    const userHtml = EmailTemplateProvider.generateUserQuoteReceiverTemplate(createQuoteDto)
+    const adminHtmlTemplate =
+      EmailTemplateProvider.generateAdminQuoteTemplate(createQuoteDto);
+    const userHtml =
+      EmailTemplateProvider.generateUserQuoteReceiverTemplate(createQuoteDto);
 
     Promise.all([
       MailProvider.sendMail({
-        subject:"Quote Received",
-        html:adminHtmlTemplate,
-        to:["admin@smartivhauz.com"]
-      }) ,
+        subject: 'Quote Received',
+        html: adminHtmlTemplate,
+        to: ['admin@smartivhauz.com'],
+      }),
       MailProvider.sendMail({
-        subject:"Quote Received",
-        html:userHtml,
-        to:[createQuoteDto.email]
-      })
-    ]).catch(err=>{
-      console.log(`An Error occured could not send templates ${err}`)
-    })
+        subject: 'Quote Received',
+        html: userHtml,
+        to: [createQuoteDto.email],
+      }),
+    ]).catch((err) => {
+      console.log(`An Error occured could not send templates ${err}`);
+    });
 
-    return AppResponse.getResponse("success", {
+    return AppResponse.getResponse('success', {
       data: { quote: saved },
-      message: "Quote created successfully",
+      message: 'Quote created successfully',
     });
   }
 
-  async findAll() {
-    const quotes = await this.quoteRepository.find();
-    return AppResponse.getResponse("success", {
-      data: { quotes },
-      message: "Quotes retrieved successfully",
-    });
-  }
+ async findAll(query: PaginationQuery) {
+  const page = parseFloat(query.page ?? "1");
+  const limit = parseFloat(query.limit ?? "10");
+
+  const skip = (page - 1) * limit;
+
+  const [quotes, totalQuotes] = await this.quoteRepository.findAndCount({
+    take: limit,
+    skip,
+    order: {
+      created_at: "DESC",
+    },
+  });
+
+  const pagination = PaginationProvider.getPagination({
+    page,
+    total: totalQuotes,
+    limit,
+  });
+
+  return AppResponse.getResponse('success', {
+    data: { quotes, pagination },
+    message: 'Quotes retrieved successfully',
+  });
+}
+
 
   async findOne(id: string) {
     const quote = await this.quoteRepository.findOne({ where: { id } });
     if (!quote) {
       throw new NotFoundException(
-        AppResponse.getResponse("failed", { message: "Quote not found" }),
+        AppResponse.getResponse('failed', { message: 'Quote not found' }),
       );
     }
-    return AppResponse.getResponse("success", {
+    return AppResponse.getResponse('success', {
       data: { quote },
-      message: "Quote retrieved successfully",
+      message: 'Quote retrieved successfully',
     });
   }
 
@@ -75,16 +104,16 @@ export class QuotesService {
     const quote = await this.quoteRepository.findOne({ where: { id } });
     if (!quote) {
       throw new NotFoundException(
-        AppResponse.getResponse("failed", { message: "Quote not found" }),
+        AppResponse.getResponse('failed', { message: 'Quote not found' }),
       );
     }
 
     Object.assign(quote, updateQuoteDto);
     const updated = await this.quoteRepository.save(quote);
 
-    return AppResponse.getResponse("success", {
+    return AppResponse.getResponse('success', {
       data: { quote: updated },
-      message: "Quote updated successfully",
+      message: 'Quote updated successfully',
     });
   }
 
@@ -92,13 +121,13 @@ export class QuotesService {
     const quote = await this.quoteRepository.findOne({ where: { id } });
     if (!quote) {
       throw new NotFoundException(
-        AppResponse.getResponse("failed", { message: "Quote not found" }),
+        AppResponse.getResponse('failed', { message: 'Quote not found' }),
       );
     }
 
     await this.quoteRepository.remove(quote);
-    return AppResponse.getResponse("success", {
-      message: "Quote removed successfully",
+    return AppResponse.getResponse('success', {
+      message: 'Quote removed successfully',
     });
   }
 }

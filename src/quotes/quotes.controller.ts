@@ -1,3 +1,4 @@
+import type { PaginationQuery } from './../lib/types';
 import {
   Controller,
   Get,
@@ -6,6 +7,7 @@ import {
   Param,
   Delete,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { QuotesService } from './quotes.service';
 import { CreateQuoteDto } from './dto/create-quote.dto';
@@ -24,8 +26,8 @@ export class QuotesController {
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Get()
-  findAll() {
-    return this.quotesService.findAll();
+  findAll(@Query() paginationQuery: PaginationQuery) {
+    return this.quotesService.findAll(paginationQuery);
   }
 
   @ApiBearerAuth()

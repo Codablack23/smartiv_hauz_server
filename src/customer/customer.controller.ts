@@ -1,7 +1,7 @@
-import { Controller, Get, Request, UseGuards } from '@nestjs/common';
+import { Controller, Get, Query, Request, UseGuards } from '@nestjs/common';
 import { CustomerService } from './customer.service';
 import { CustomerTokenGuard } from 'src/lib/guards/customer.guard';
-import type { CustomerRequest } from 'src/lib/types';
+import type { CustomerRequest, PaginationQuery } from 'src/lib/types';
 import { AppResponse } from 'src/lib';
 import { JwtAuthGuard } from 'src/providers';
 
@@ -22,7 +22,7 @@ export class CustomerController {
 
   @UseGuards(JwtAuthGuard)
   @Get('/all')
-  getCustomers() {
-    return this.customerService.getCustomers();
+  getCustomers(@Query() query: PaginationQuery) {
+    return this.customerService.getCustomers(query);
   }
 }
